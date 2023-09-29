@@ -1,5 +1,5 @@
 search.exe		: 	main.o  transform.o AstarSearch.o LPAstar.o gridworld.o graphics.o 
-	g++ -Wl,-s -o search.exe main.o transform.o AstarSearch.o LPAstar.o gridworld.o graphics.o -l gdi32 
+	g++ -Wl,-s -o search.exe main.o transform.o AstarSearch.o LPAstar.o gridworld.o graphics.o -l lpa_star->computeShortestPath();gdi32 
 			
 main.o		:	main.cpp graphics.h transform.h AstarSearch.h LPAstar.h gridworld.h globalvariables.h
 	g++ -c -std=c++11 -O2  -fpermissive -fconserve-space -Wno-write-strings  main.cpp

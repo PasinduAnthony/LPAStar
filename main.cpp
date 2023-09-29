@@ -356,7 +356,7 @@ int getKey(){
 	
 	copyDisplayMapToMaze(grid_world, lpa_star);
 
-	
+	lpa_star->computeShortestPath();	
 	//----------------------------------------------------------------
 		
 	worldBoundary = grid_world.getWorldBoundary();
@@ -956,8 +956,8 @@ int getKey(){
 
 
 			} //while(ANIMATE_MOUSE_FLAG) - End
-		cout << "shortes path called" << endl;
-		lpa_star->computeShortestPath();	  
+		// cout << "shortes path called" << endl;
+		// lpa_star->computeShortestPath();	  
 	}
 }
 
