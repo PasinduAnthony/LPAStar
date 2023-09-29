@@ -1,0 +1,6 @@
+RUN ALGORITHM ON A SINGLE GRID, USING THE CHEBYSHEV HEURISTIC
+./search.exe ./grids/grid_lpa_journal.map c
+
+
+RUN MULTIPLE EXPERIMENTS, THEN TABULATE THE RESULTS
+./search.exe all
