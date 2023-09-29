@@ -102,35 +102,65 @@ void LpaStar::initialise(int startX, int startY, int goalX, int goalY){
 }
 
 void LpaStar::updateVertex(LpaStarCell* u) {
+	
 	// calc_H(s.x, s.y);
-    if (u != start) {
-		int mini = 100000;
-        // for (int pred = 0; pred < sizeof(u->predecessor); ++pred) {
-        //     int c = 0;
-		// 	if((u->predecessor[pred]->x != 0) && (u->predecessor[pred]->y != 0)){
-		// 		c = SQRT_2;
-		// 	}else{
-		// 		c = 1;
-		// 	}
+	cout << "updateVertex" <<endl;
+    
+	int mini = INF;
+	LpaStarCell* succ;
+	// for (int pred = 0; pred < sizeof(u->successor); ++pred) {
+	for (int i = 0; i < DIRECTIONS; i++) {
+		if ((u->successor[i] != start) && (u->successor[i]->type == '0')) {			
+			int c = 0;
+			succ = u->successor[i];
+			if(((succ->x == (u->x)-1) && (succ->y != (u->y)-1)) || ((succ->x == (u->x)+1) && (succ->y != (u->y)-1)) || ((succ->x == (u->x)-1) && (succ->y != (u->y)+1)) || ((succ->x == (u->x)+1) && (succ->y != (u->y)+1))){
+				c = SQRT_2;
+			}else{
+				c = 1;
+			}
+			// cout << c <<endl;
+			// if((u->successor[i]->g + c)<mini){
+			// 	cout << "inside mini" <<endl;
+			// 	mini = u->successor[i]->g + c;
+			// }
 
-		// 	if((u->predecessor[pred]->g + c)<mini){
-		// 		mini = u->predecessor[pred]->g + c;
-		// 	}
-        // }
+			u->successor[i]->h = calc_H(u->successor[i]->x, u->successor[i]->y);
+			if((u->successor[i]->g) == INF){
+				cout << "inside mini" <<endl;
+				u->successor[i]->g = c;
+				u->successor[i]->rhs = c;
+			}else{
+				u->successor[i]->g = u->successor[i]->g + c;
+				u->successor[i]->rhs = u->successor[i]->g + c;
+			}
+			
 
-		int c = 0;
-		if((u->x != 0) && (u->y != 0)){
-			c = SQRT_2;
-		}else{
-			c = 1;
+			// u->rhs = mini;
+			
+			cout << "rhs" <<endl;
+			cout << u->successor[i]->rhs <<endl;
+
+			if(u->successor[i]->rhs<mini){
+				succ = u->successor[i];
+			}
 		}
+	}
 
-		if((u->g + c)<mini){
-			mini = u->g + c;
-		}
-		u->rhs = mini;
-		u->h = calc_H(u->x, u->y);
-    }
+	cout << succ->y <<endl;
+	u->rhs = succ->rhs;
+
+		// int c = 0;
+		// if((u->x != 0) && (u->y != 0)){
+		// 	c = SQRT_2;
+		// }else{
+		// 	c = 1;
+		// }
+
+		// if((u->g + c)<mini){
+		// 	mini = u->g + c;
+		// }
+		
+    
 
     bool found = false;
 	for (auto it = U.begin(); it != U.end(); ++it) {
@@ -148,8 +178,9 @@ void LpaStar::updateVertex(LpaStarCell* u) {
         // You'll need to implement this part based on your priority queue data structure
         // Calculate the key and add it to the queue
         calcKey(u);
-
+		cout << "g not equal to rhs" <<endl;
         // u->open = true;
+		calc_H(u->x, u->y);
 		U.push_back(u);
 		push_heap(U.begin(),U.end());
     }
@@ -164,18 +195,24 @@ void LpaStar::computeShortestPath() {
     // calcKey(goal);
    
     // Add the goal cell to the priority queue
-	int hKey1 = U.back()->key[0];
-	int hKey2 = U.back()->key[1];
+	int hKey1 = INF;
+	int hKey2 = INF;
+
+	if (!U.empty()) {
+        hKey1 = U.back()->key[0];
+		hKey2 = U.back()->key[1];
+    }
+	
 	// cout << calc_H(U.back()->x, U.back()->y) <<endl;
 	updateHValues();
 	// cout << U.back()->type <<endl;
-	cout << U.back()->x <<endl;
-	cout << U.back()->y <<endl;
+	// cout << U.back()->x <<endl;
+	// cout << U.back()->y <<endl;
 
-	cout << rows <<endl;
-	cout << cols <<endl;
-	cout << maze[(U.back()->y)-1][U.back()->x].type <<endl;
-	cout << maze[U.back()->y][(U.back()->x)-1].type <<endl;
+	// cout << rows <<endl;
+	// cout << cols <<endl;
+	// cout << maze[(U.back()->y)-1][U.back()->x].type <<endl;
+	// cout << maze[U.back()->y][(U.back()->x)-1].type <<endl;
 	
 	// cout << goal->x <<endl;
 	// cout << goal->y <<endl;
@@ -184,13 +221,13 @@ void LpaStar::computeShortestPath() {
 
 
 	calcKey(goal);
-	cout << goal->key[0] <<endl;
-	cout << goal->key[1] <<endl;
+	// cout << goal->key[0] <<endl;
+	// cout << goal->key[1] <<endl;
 	// U.push_back(goal);
 	int calKey1 = goal->key[0];
 	int calKey2 = goal->key[1];
-	cout << ((hKey1 < calKey1) && (hKey2 < calKey2)) <<endl;
-	cout << U.back()->g <<endl;
+	// cout << ((hKey1 < calKey1) && (hKey2 < calKey2)) <<endl;
+	// cout << U.back()->g <<endl;
 	
 	// int i = 0;
 	// while (i < 5) {
@@ -220,7 +257,7 @@ void LpaStar::computeShortestPath() {
 	// 	break;
 	// }
 
-	while(((hKey1 < calKey1) && (hKey2 < calKey2)) || (goal->rhs != goal->g)){
+	while(!U.empty() && ((hKey1 < calKey1) && (hKey2 < calKey2)) || (goal->rhs != goal->g)){
 		cout << "inside while" <<endl;
 		// hKey1 = U.back()->key[0];
 		// hKey2 = U.back()->key[1];
@@ -241,52 +278,37 @@ void LpaStar::computeShortestPath() {
 			LpaStarCell* s = u;
 			if(((u->x)-1 < cols) && ((u->y)-1 < rows) && ((u->x)-1 >= 0) && ((u->y)-1 >= 0)){
 				s = &maze[(u->y)-1][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[0] = s;
 			}
 			if(((u->x) < cols) && ((u->y)-1 < rows) && ((u->x) >= 0) && ((u->y)-1 >= 0)){
-				s = &maze[(u->y)-1][(u->x)];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				s = &maze[(u->y)-1][(u->x)];	
+				u->successor[1] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y)-1 < rows) && ((u->x)+1 >= 0) && ((u->y)-1 >= 0)){
 				s = &maze[(u->y)-1][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[2] = s;
 			}
 			if(((u->x)-1 < cols) && ((u->y) < rows) && ((u->x)-1 >= 0) && ((u->y) >= 0)){
 				s = &maze[(u->y)][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[3] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y) < rows) && ((u->x)+1 >= 0) && ((u->y) >= 0)){
 				s = &maze[(u->y)][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[4] = s;
 			}
 			if(((u->x)-1 < cols) && ((u->y)+1 < rows) && ((u->x)-1 >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[5] = s;
 			}
 			if(((u->x) < cols) && ((u->y)+1 < rows) && ((u->x) >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[6] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y)+1 < rows) && ((u->x)+1 >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[7] = s;
 			}
+			updateVertex(u);
 		}else{
 			u->g = INF;
 			// for(int dir = 0; dir < DIRECTIONS; ++dir){
@@ -296,54 +318,52 @@ void LpaStar::computeShortestPath() {
 			LpaStarCell* s = u;
 			if(((u->x)-1 < cols) && ((u->y)-1 < rows) && ((u->x)-1 >= 0) && ((u->y)-1 >= 0)){
 				s = &maze[(u->y)-1][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[0] = s;
 			}
 			if(((u->x) < cols) && ((u->y)-1 < rows) && ((u->x) >= 0) && ((u->y)-1 >= 0)){
-				s = &maze[(u->y)-1][(u->x)];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				s = &maze[(u->y)-1][(u->x)];	
+				u->successor[1] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y)-1 < rows) && ((u->x)+1 >= 0) && ((u->y)-1 >= 0)){
 				s = &maze[(u->y)-1][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[2] = s;
 			}
 			if(((u->x)-1 < cols) && ((u->y) < rows) && ((u->x)-1 >= 0) && ((u->y) >= 0)){
 				s = &maze[(u->y)][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[3] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y) < rows) && ((u->x)+1 >= 0) && ((u->y) >= 0)){
 				s = &maze[(u->y)][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[4] = s;
 			}
 			if(((u->x)-1 < cols) && ((u->y)+1 < rows) && ((u->x)-1 >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)-1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[5] = s;
 			}
 			if(((u->x) < cols) && ((u->y)+1 < rows) && ((u->x) >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[6] = s;
 			}
 			if(((u->x)+1 < cols) && ((u->y)+1 < rows) && ((u->x)+1 >= 0) && ((u->y)+1 >= 0)){
 				s = &maze[(u->y)+1][(u->x)+1];
-				if(s->type = 0){
-					updateVertex(s);
-				}
+				u->successor[7] = s;
 			}
+			updateVertex(u);
 		}
-		break;
+		// updateVertex(u);
+
+		if (!U.empty()) {
+			hKey1 = U.back()->key[0];
+			hKey2 = U.back()->key[1];
+		}
+
+		updateHValues();
+	
+		calcKey(goal);
+	
+		int calKey1 = goal->key[0];
+		int calKey2 = goal->key[1];
+		// break;
 	}
 }
 
