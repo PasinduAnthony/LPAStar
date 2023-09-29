@@ -185,6 +185,7 @@ struct LpaStarCell
 {
     LpaStarCell* move[DIRECTIONS];
     LpaStarCell* predecessor[DIRECTIONS];
+	LpaStarCell* successor[DIRECTIONS];
 	 double linkCost[DIRECTIONS];
     LpaStarCell* parent;
     LpaStarCell* trace;

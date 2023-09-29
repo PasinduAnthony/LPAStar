@@ -17,6 +17,9 @@ public:
     LpaStar(int rows, int cols, unsigned int _heuristic, string _gridWorldName); //constructor
 
     void initialise(int startX, int startY, int goalX, int goalY);
+
+    void computeShortestPath();
+    void updateVertex(LpaStarCell* cell);
 	double minValue(double g_, double rhs_);
     //double maxValue(double v1, double v2);
     int maxValue(int v1, int v2);
