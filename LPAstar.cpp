@@ -106,28 +106,23 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 	// calc_H(s.x, s.y);
 	cout << "updateVertex" <<endl;
     
-	int mini = INF;
+	double mini = 100000;
 	LpaStarCell* succ;
+	LpaStarCell* miniSucc;
 	// for (int pred = 0; pred < sizeof(u->successor); ++pred) {
 	for (int i = 0; i < DIRECTIONS; i++) {
-		if ((u->successor[i] != start) && (u->successor[i]->type == '0')) {			
-			int c = 0;
+		if ((u->successor[i] != start) && (u->successor[i]->type == '0')) {	
+		// if ((u->successor[i]->type == '0')) {			
+			double c = 0;
 			succ = u->successor[i];
-			if(((succ->x == (u->x)-1) && (succ->y != (u->y)-1)) || ((succ->x == (u->x)+1) && (succ->y != (u->y)-1)) || ((succ->x == (u->x)-1) && (succ->y != (u->y)+1)) || ((succ->x == (u->x)+1) && (succ->y != (u->y)+1))){
+			if(((succ->x == (u->x)-1) && (succ->y == (u->y)-1)) || ((succ->x == (u->x)+1) && (succ->y == (u->y)-1)) || ((succ->x == (u->x)-1) && (succ->y == (u->y)+1)) || ((succ->x == (u->x)+1) && (succ->y == (u->y)+1))){
 				c = SQRT_2;
 			}else{
 				c = 1;
 			}
-			// cout << c <<endl;
-			// if((u->successor[i]->g + c)<mini){
-			// 	cout << "inside mini" <<endl;
-			// 	mini = u->successor[i]->g + c;
-			// }
 
 			u->successor[i]->h = calc_H(u->successor[i]->x, u->successor[i]->y);
 			if((u->successor[i]->g) == INF){
-				cout << "inside mini" <<endl;
-				u->successor[i]->g = c;
 				u->successor[i]->rhs = c;
 			}else{
 				u->successor[i]->g = u->successor[i]->g + c;
@@ -135,19 +130,25 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 			}
 			
 
-			// u->rhs = mini;
-			
-			cout << "rhs" <<endl;
-			cout << u->successor[i]->rhs <<endl;
-
-			if(u->successor[i]->rhs<mini){
-				succ = u->successor[i];
+			if(u->successor[i]->h<mini){
+				mini = succ->h;
+				miniSucc = succ;
+				cout << mini <<endl;
+				cout << "Current X : " << succ->x << ", Y : " << succ->y <<endl; 
+				cout << "rhs" <<endl;
+				cout << u->successor[i]->rhs <<endl;
 			}
+			cout << "Start X : " << start->x << ", Y : " << start->y <<endl; 
+			cout << "Traversable X : " << succ->x << ", Y : " << succ->y <<endl; 
+			cout << "Mini rhs : "<< mini <<endl; 
 		}
+		// cout << "DIRECTIONS X : " << u->successor[i]->x << ", Y : " << u->successor[i]->y <<endl;  
 	}
 
-	cout << succ->y <<endl;
-	u->rhs = succ->rhs;
+	cout << "hello" <<endl;
+	// u->rhs = succ->rhs;
+
+	cout << "Mini rhs 2 : "<< miniSucc->h <<endl;
 
 		// int c = 0;
 		// if((u->x != 0) && (u->y != 0)){
@@ -170,6 +171,8 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 			break; // Found u, no need to continue searching
 		}
 	}
+	cout << "U removed : " << found <<endl;
+
     if (u->g != u->rhs) {
         // Update the cell's g value
         // u->g = u->rhs;
@@ -177,12 +180,13 @@ void LpaStar::updateVertex(LpaStarCell* u) {
         // Add the cell back to the priority queue with the updated key
         // You'll need to implement this part based on your priority queue data structure
         // Calculate the key and add it to the queue
-        calcKey(u);
-		cout << "g not equal to rhs" <<endl;
-        // u->open = true;
-		calc_H(u->x, u->y);
-		U.push_back(u);
-		push_heap(U.begin(),U.end());
+       
+	    // calcKey(u);
+		// cout << "g not equal to rhs" <<endl;
+        // // u->open = true;
+		// calc_H(u->x, u->y);
+		// U.push_back(u);
+		// push_heap(U.begin(),U.end());
     }
 }
 
@@ -267,7 +271,7 @@ void LpaStar::computeShortestPath() {
 		// calKey2 = goal->key[1];
 
 		LpaStarCell* u = U.back();
-		U.pop_back();
+		// U.pop_back();
 		cout << "after popping" <<endl;
 
 		if(u->g > u->rhs){
@@ -308,7 +312,7 @@ void LpaStar::computeShortestPath() {
 				s = &maze[(u->y)+1][(u->x)+1];
 				u->successor[7] = s;
 			}
-			updateVertex(u);
+			// updateVertex(u);
 		}else{
 			u->g = INF;
 			// for(int dir = 0; dir < DIRECTIONS; ++dir){
@@ -348,9 +352,9 @@ void LpaStar::computeShortestPath() {
 				s = &maze[(u->y)+1][(u->x)+1];
 				u->successor[7] = s;
 			}
-			updateVertex(u);
+			// updateVertex(u);
 		}
-		// updateVertex(u);
+		updateVertex(u);
 
 		if (!U.empty()) {
 			hKey1 = U.back()->key[0];
