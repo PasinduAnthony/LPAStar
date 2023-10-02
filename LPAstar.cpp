@@ -3,6 +3,7 @@
 #include <stdlib.h> /* calloc, exit, free */
 #include <math.h> //sqrt, pow
 #include <bits/stdc++.h>
+#include<fstream>
 
 #include "LPAstar.h"
 #include "gridworld.h"
@@ -121,34 +122,51 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 				c = 1;
 			}
 
-			u->successor[i]->h = calc_H(u->successor[i]->x, u->successor[i]->y);
-			if((u->successor[i]->g) == INF){
-				u->successor[i]->rhs = c;
+			succ->h = calc_H(succ->x, succ->y);
+			if((succ->g) == INF){
+				// succ->g = c;
+				succ->rhs = c;
 			}else{
-				u->successor[i]->g = u->successor[i]->g + c;
-				u->successor[i]->rhs = u->successor[i]->g + c;
+				succ->g = succ->g + c;
+				succ->rhs = succ->g + c;
 			}
 			
 
-			if(u->successor[i]->h<mini){
+			if(succ->h<mini){
 				mini = succ->h;
 				miniSucc = succ;
-				cout << mini <<endl;
-				cout << "Current X : " << succ->x << ", Y : " << succ->y <<endl; 
-				cout << "rhs" <<endl;
-				cout << u->successor[i]->rhs <<endl;
+				// cout << mini <<endl;
+				// cout << "Current X : " << succ->x << ", Y : " << succ->y <<endl; 
+				// cout << "rhs" <<endl;
+				// cout << u->successor[i]->rhs <<endl;
 			}
-			cout << "Start X : " << start->x << ", Y : " << start->y <<endl; 
-			cout << "Traversable X : " << succ->x << ", Y : " << succ->y <<endl; 
-			cout << "Mini rhs : "<< mini <<endl; 
+
+			if (succ->g != succ->rhs) {
+				// Update the cell's g value
+				// u->g = u->rhs;
+
+				// Add the cell back to the priority queue with the updated key
+				// You'll need to implement this part based on your priority queue data structure
+				// Calculate the key and add it to the queue
+			
+				calcKey(succ);
+				// cout << "g not equal to rhs" <<endl;
+				// u->open = true;
+				// calc_H(u->x, u->y);
+				U.push_back(succ);
+				std::push_heap(U.begin(),U.end());
+			}
+			// cout << "Start X : " << start->x << ", Y : " << start->y <<endl; 
+			// cout << "Traversable X : " << succ->x << ", Y : " << succ->y <<endl; 
+			// cout << "Mini rhs : "<< mini <<endl; 
 		}
 		// cout << "DIRECTIONS X : " << u->successor[i]->x << ", Y : " << u->successor[i]->y <<endl;  
 	}
 
-	cout << "hello" <<endl;
+	// cout << "hello" <<endl;
 	// u->rhs = succ->rhs;
 
-	cout << "Mini rhs 2 : "<< miniSucc->h <<endl;
+	// cout << "Mini rhs 2 : "<< miniSucc->h <<endl;
 
 		// int c = 0;
 		// if((u->x != 0) && (u->y != 0)){
@@ -167,27 +185,52 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 	for (auto it = U.begin(); it != U.end(); ++it) {
 		if (*it == u) {
 			found = true;
+
+
+
+			fstream f;
+			ofstream fout;
+			ifstream fin;
+			fin.open("a1.txt");
+			fout.open ("a1.txt",ios::app);
+			if(fin.is_open())
+				fout<<"\n"<< U.front()->x <<","<< u->y << ", g = " <<u->g << ", rhs = " << u->rhs;
+				cout <<"\n"<< u->x <<","<< u->y <<endl;
+				fin.close();
+				fout.close();
+				string word;
+				f.open("a1.txt");
+
+
+
+			// cout << "Path X : " << u->x << ", Y : " << u->y <<endl;
 			U.erase(it); // Remove u from the vector
 			break; // Found u, no need to continue searching
 		}
 	}
-	cout << "U removed : " << found <<endl;
+	cout << "Heap Size : " << U.size() <<endl;
 
-    if (u->g != u->rhs) {
-        // Update the cell's g value
-        // u->g = u->rhs;
+	// std::cout << "Elements in the heap: ";
+    // for (auto it = U.begin(); it != U.end(); ++it) {
+	// 	cout << "Path X : " << *it <<endl;
+	// }
 
-        // Add the cell back to the priority queue with the updated key
-        // You'll need to implement this part based on your priority queue data structure
-        // Calculate the key and add it to the queue
-       
-	    // calcKey(u);
-		// cout << "g not equal to rhs" <<endl;
-        // // u->open = true;
-		// calc_H(u->x, u->y);
-		// U.push_back(u);
-		// push_heap(U.begin(),U.end());
+	std::cout << "Elements in the heap: ";
+    for (LpaStarCell* num : U) {
+        cout << "Path X : " << num->x << ", Y : " << num->y << ", G : " << num->g << ", RHS : " << num->rhs <<endl;  
     }
+    std::cout << std::endl;
+
+	cout << U.front()->x <<","<< U.front()->y <<endl;
+
+	
+		// while (f >> word) {
+		// 	cout << word << " ";
+		// }
+
+
+	// cout << "Path X : " << num->x << ", Y : " << num->y <<endl;
+    // std::cout << std::endl;
 }
 
 void LpaStar::computeShortestPath() {
@@ -202,10 +245,8 @@ void LpaStar::computeShortestPath() {
 	int hKey1 = INF;
 	int hKey2 = INF;
 
-	if (!U.empty()) {
-        hKey1 = U.back()->key[0];
-		hKey2 = U.back()->key[1];
-    }
+	LpaStarCell* u = U.front();
+	LpaStarCell* s;
 	
 	// cout << calc_H(U.back()->x, U.back()->y) <<endl;
 	updateHValues();
@@ -222,7 +263,7 @@ void LpaStar::computeShortestPath() {
 	// cout << goal->y <<endl;
 	// cout << goal->h <<endl;
 	
-
+	
 
 	calcKey(goal);
 	// cout << goal->key[0] <<endl;
@@ -260,8 +301,7 @@ void LpaStar::computeShortestPath() {
 	// 	cout << "if" <<endl;
 	// 	break;
 	// }
-
-	while(!U.empty() && ((hKey1 < calKey1) && (hKey2 < calKey2)) || (goal->rhs != goal->g)){
+	while(!U.empty() && ((u->key[0] < calKey1) && (u->key[1] < calKey2)) || (goal->rhs != goal->g)){
 		cout << "inside while" <<endl;
 		// hKey1 = U.back()->key[0];
 		// hKey2 = U.back()->key[1];
@@ -269,104 +309,103 @@ void LpaStar::computeShortestPath() {
 		// calcKey(goal);
 		// calKey1 = goal->key[0];
 		// calKey2 = goal->key[1];
-
-		LpaStarCell* u = U.back();
+		
+		u = U.front();
+				
 		// U.pop_back();
-		cout << "after popping" <<endl;
-
 		if(u->g > u->rhs){
 			u->g = u->rhs;
 			// for(int dir = 0; dir < DIRECTIONS; ++dir){
 			// 	updateVertex(u->successor[dir]);
 			// }
-			LpaStarCell* s = u;
-			if(((u->x)-1 < cols) && ((u->y)-1 < rows) && ((u->x)-1 >= 0) && ((u->y)-1 >= 0)){
+			s = u;
+			if((((u->x)-1 < cols) && ((u->y)-1 < rows)) && (((u->x)-1 >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)-1];
 				u->successor[0] = s;
 			}
-			if(((u->x) < cols) && ((u->y)-1 < rows) && ((u->x) >= 0) && ((u->y)-1 >= 0)){
+			if((((u->x) < cols) && ((u->y)-1 < rows)) && (((u->x) >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)];	
 				u->successor[1] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y)-1 < rows) && ((u->x)+1 >= 0) && ((u->y)-1 >= 0)){
+			if((((u->x)+1 < cols) && ((u->y)-1 < rows)) && (((u->x)+1 >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)+1];
 				u->successor[2] = s;
 			}
-			if(((u->x)-1 < cols) && ((u->y) < rows) && ((u->x)-1 >= 0) && ((u->y) >= 0)){
+			if((((u->x)-1 < cols) && ((u->y) < rows)) && (((u->x)-1 >= 0) && ((u->y) >= 0))){
 				s = &maze[(u->y)][(u->x)-1];
 				u->successor[3] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y) < rows) && ((u->x)+1 >= 0) && ((u->y) >= 0)){
+			if((((u->x)+1 < cols) && ((u->y) < rows)) && (((u->x)+1 >= 0) && ((u->y) >= 0))){
 				s = &maze[(u->y)][(u->x)+1];
 				u->successor[4] = s;
 			}
-			if(((u->x)-1 < cols) && ((u->y)+1 < rows) && ((u->x)-1 >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x)-1 < cols) && ((u->y)+1 < rows)) && (((u->x)-1 >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)-1];
 				u->successor[5] = s;
 			}
-			if(((u->x) < cols) && ((u->y)+1 < rows) && ((u->x) >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x) < cols) && ((u->y)+1 < rows)) && (((u->x) >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)];
 				u->successor[6] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y)+1 < rows) && ((u->x)+1 >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x)+1 < cols) && ((u->y)+1 < rows)) && (((u->x)+1 >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)+1];
 				u->successor[7] = s;
 			}
-			// updateVertex(u);
+			updateVertex(u);
 		}else{
 			u->g = INF;
 			// for(int dir = 0; dir < DIRECTIONS; ++dir){
 			// 	updateVertex(u->successor[dir]);
 			// }
 			// updateVertex(u);
-			LpaStarCell* s = u;
-			if(((u->x)-1 < cols) && ((u->y)-1 < rows) && ((u->x)-1 >= 0) && ((u->y)-1 >= 0)){
+			s = u;
+			if((((u->x)-1 < cols) && ((u->y)-1 < rows)) && (((u->x)-1 >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)-1];
 				u->successor[0] = s;
 			}
-			if(((u->x) < cols) && ((u->y)-1 < rows) && ((u->x) >= 0) && ((u->y)-1 >= 0)){
+			if((((u->x) < cols) && ((u->y)-1 < rows)) && (((u->x) >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)];	
 				u->successor[1] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y)-1 < rows) && ((u->x)+1 >= 0) && ((u->y)-1 >= 0)){
+			if((((u->x)+1 < cols) && ((u->y)-1 < rows)) && (((u->x)+1 >= 0) && ((u->y)-1 >= 0))){
 				s = &maze[(u->y)-1][(u->x)+1];
 				u->successor[2] = s;
 			}
-			if(((u->x)-1 < cols) && ((u->y) < rows) && ((u->x)-1 >= 0) && ((u->y) >= 0)){
+			if((((u->x)-1 < cols) && ((u->y) < rows)) && (((u->x)-1 >= 0) && ((u->y) >= 0))){
 				s = &maze[(u->y)][(u->x)-1];
 				u->successor[3] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y) < rows) && ((u->x)+1 >= 0) && ((u->y) >= 0)){
+			if((((u->x)+1 < cols) && ((u->y) < rows)) && (((u->x)+1 >= 0) && ((u->y) >= 0))){
 				s = &maze[(u->y)][(u->x)+1];
 				u->successor[4] = s;
 			}
-			if(((u->x)-1 < cols) && ((u->y)+1 < rows) && ((u->x)-1 >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x)-1 < cols) && ((u->y)+1 < rows)) && (((u->x)-1 >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)-1];
 				u->successor[5] = s;
 			}
-			if(((u->x) < cols) && ((u->y)+1 < rows) && ((u->x) >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x) < cols) && ((u->y)+1 < rows)) && (((u->x) >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)];
 				u->successor[6] = s;
 			}
-			if(((u->x)+1 < cols) && ((u->y)+1 < rows) && ((u->x)+1 >= 0) && ((u->y)+1 >= 0)){
+			if((((u->x)+1 < cols) && ((u->y)+1 < rows)) && (((u->x)+1 >= 0) && ((u->y)+1 >= 0))){
 				s = &maze[(u->y)+1][(u->x)+1];
 				u->successor[7] = s;
 			}
-			// updateVertex(u);
+			updateVertex(u);
 		}
-		updateVertex(u);
+		// updateVertex(u);
 
-		if (!U.empty()) {
-			hKey1 = U.back()->key[0];
-			hKey2 = U.back()->key[1];
-		}
+		// if (!U.empty()) {
+		// 	hKey1 = U.front()->key[0];
+		// 	hKey2 = U.front()->key[1];
+		// }
 
 		updateHValues();
 	
 		calcKey(goal);
 	
-		int calKey1 = goal->key[0];
-		int calKey2 = goal->key[1];
+		calKey1 = goal->key[0];
+		calKey2 = goal->key[1];
 		// break;
 	}
 }

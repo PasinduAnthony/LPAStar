@@ -356,7 +356,7 @@ int getKey(){
 	
 	copyDisplayMapToMaze(grid_world, lpa_star);
 
-	lpa_star->computeShortestPath();	
+	lpa_star->computeShortestPath();
 	//----------------------------------------------------------------
 		
 	worldBoundary = grid_world.getWorldBoundary();
