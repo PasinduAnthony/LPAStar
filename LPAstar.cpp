@@ -167,29 +167,33 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 	LpaStarCell* miniSucc;
 	// for (int pred = 0; pred < sizeof(u->successor); ++pred) {
 	for (int i = 0; i < DIRECTIONS; i++) {
-		if ((u->successor[i] != start) && (u->successor[i]->type == '0') && !(inHeap(u->successor[i]))) {	
+		if ((u->successor[i] != start) && ((u->successor[i]->type == '0') || (u->successor[i]->type == '7')) && !(inHeap(u->successor[i]))) {	
 		// if ((u->successor[i]->type == '0')) {			
 			double c;
 			succ = u->successor[i];
 			succ->parent = u;
 			c = getCost(succ, u);
 
-			succ->h = calc_H(succ->x, succ->y);
-			if((succ->g) == INF){
-				// succ->g = c;
-				succ->rhs = c;
-			}else{
-				// succ->g = succ->g + c;
-				succ->rhs = succ->g + c;
-			}
 			
 
-			// if(succ->rhs > u->g + c){
-			// 	succ->parent = u;
-            //     succ->rhs = u->g + c;
-
-			// 	cout << "\n Rhs > G" << endl;
+			succ->h = calc_H(succ->x, succ->y);
+			// if((succ->g) == INF){
+			// 	// succ->g = c;
+			// 	succ->rhs = c;
+			// }else{
+			// 	// succ->g = succ->g + c;
+			// 	succ->rhs = succ->g + c;
 			// }
+			
+			if(succ->rhs > u->g + c){
+				succ->parent = u;
+                succ->rhs = u->g + c;
+
+				cout << "\n Rhs > G" << endl;
+			}else{
+				succ->rhs = c;
+			}
+			
 
 			// if(succ->h<mini){
 			// 	mini = succ->h;
@@ -210,25 +214,8 @@ void LpaStar::updateVertex(LpaStarCell* u) {
 
 	
 	bool found = false;
-	// if (succ->g != succ->rhs) {
-
-	// 	for (auto it = U.begin(); it != U.end(); ++it) {
-	// 		if (*it == miniSucc) {
-	// 			found = true;
-	// 			U.erase(it);
-	// 			cout << "Erased" <<endl;
-	// 			break; // Found u, no need to continue searching
-	// 		}
-	// 	}
-
-	// 	calcKey(miniSucc);
-	// 	U.push_back(miniSucc);
-	// 	std::push_heap(U.begin(),U.end());
-	// }
-
-    found = false;
-
-	fstream f;
+	
+    fstream f;
 	ofstream fout;
 	ifstream fin;
 	fin.open("a2.txt");
@@ -306,12 +293,13 @@ void LpaStar::computeShortestPath() {
 	
 	int count = 0;
 	
-	while(!U.empty() && (count < 17) && ((u->key[0] < calKey1) && (u->key[1] < calKey2)) || (goal->rhs != goal->g) ){
+	while(!U.empty() && ((u->key[0] < calKey1) && (u->key[1] < calKey2)) || (goal->rhs != goal->g) ){
 		cout << "inside while" <<endl;
 		
 		++count; 
 		u = U.front();
 		cout<<"\n Top value : "<< u->x <<","<< u->y << ", g = " <<u->g << ", rhs = " << u->rhs << ", h = " << u->h;
+		cout<<"\n Goal value : "<< goal->key[0] <<","<< goal->key[1] << ", type = " <<goal->type << ", rhs = " << u->rhs << ", h = " << u->h;
 		
 		if (u->x == goal->x && u->y == goal->y) {
             break;  // Goal reached
@@ -389,6 +377,9 @@ void LpaStar::computeShortestPath() {
 		calKey2 = goal->key[1];
 		// break;
 	}
+
+	cout << "\n-----------Goal Reached-----------" <<endl;
+	cout << "\nNumber of Steps : " << count <<endl;
 }
 
 void LpaStar::initialPlanning(){
