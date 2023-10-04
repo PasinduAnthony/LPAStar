@@ -5,6 +5,7 @@
 #include <iostream> 
 #include <iomanip> 
 #include "globalVariables.h"
+#include <queue>
 
 class GridWorld; //forward declare class GridWorld to be able to create the friend functions later
 
@@ -27,9 +28,12 @@ public:
     void calcKey(LpaStarCell *cell);
     //void calc_H(int x, int y);
     double calc_H(int x, int y);
+    double getCost(LpaStarCell* succ, LpaStarCell* u);
+    bool inHeap(LpaStarCell* u);
     void updateHValues();
     void updateAllKeyValues();
 
+    void printQueue(priority_queue<LpaStarCell* > pq);
     void initialPlanning();
 
     void finalPlanning();
@@ -75,13 +79,15 @@ private:
 	
     vector<vector<LpaStarCell> > maze;   
     LpaStarCell l;
-    vector<LpaStarCell* > U; //Priority Queue
+    vector<LpaStarCell* > U;
+    // priority_queue<LpaStarCell* > U; //Priority Queue
+    vector<LpaStarCell* > PopOut; //Priority Queue
     LpaStarCell* start;
     LpaStarCell* goal;
 
     int rows;
     int cols;
-
+    int current_top_coord;
 };
 
 #endif

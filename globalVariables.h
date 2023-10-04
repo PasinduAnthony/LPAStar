@@ -181,6 +181,9 @@ extern int cellHeight;
 
 #define INF  1000000
 
+
+
+
 struct LpaStarCell
 {
     LpaStarCell* move[DIRECTIONS];
@@ -197,6 +200,7 @@ struct LpaStarCell
 	 double h;
     double key[2];
 	
+	
 	 //~ int g;
     //~ int rhs;
     //~ int key[2];
@@ -207,10 +211,60 @@ struct LpaStarCell
 	 char type;
 	 //----------------------
 	
-
+	
 	
     int generated;
     int heapindex;
+
+
+	// bool operator<(const LpaStarCell* other) const {
+    //     bool result = false;
+	// 	if(key[0] < other->key[0]){
+	// 		result = true;
+	// 	}else if(key[0] == other->key[0]){
+	// 		if(key[1] < other->key[1]){
+	// 			result = true;
+	// 		}
+	// 	}
+    //     return result; // Change the comparison as needed
+    // }
+};
+
+// struct LpaStarCellComparator{
+// 	bool operator()(const LpaStarCell* a, const LpaStarCell* b) const {
+		
+// 		bool result = false;
+// 		if(a->key[0] < b->key[0]){
+// 			result = true;
+// 		}else if(a->key[0] == b->key[0]){
+// 			if(a->key[1] < b->key[1]){
+// 				result = true;
+// 			}
+// 		}
+//         return result; // Min-heap: Compare based on 'x' in ascending order
+//     }
+// };
+
+// Define a custom comparison functor
+// struct LpaStarCellComparator {
+//     bool operator()(const LpaStarCell* a, const LpaStarCell* b) const {
+//         if (a->key[0] == b->key[0]) {
+//             return a->key[1] > b->key[1]; // Secondary comparison on key[1]
+//         }
+//         return a->key[0] > b->key[0]; // Primary comparison on key[0]
+//     }
+// };
+
+struct LpaStarCellComparator {
+    bool operator()(const LpaStarCell* cell1, const LpaStarCell* cell2) const {
+        if (cell1->key[0] != cell2->key[0]) {
+            // If key[0] values are not equal, order by key[0] ascending
+            return cell1->key[0] < cell2->key[0];
+        } else {
+            // If key[0] values are equal, order by key[1] ascending
+            return cell1->key[1] < cell2->key[1];
+        }
+    }
 };
 
 extern bool SHOW_MAP_DETAILS;
