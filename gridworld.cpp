@@ -92,7 +92,7 @@ void GridWorld::displayHeader(){
 		 outtextxy(x ,y, "F4: hide details, F5: show details, F9: copy display map to Algorithm data structure(maze), F10: run Search");
 	    y = y + textheight("_");
 	    setcolor(WHITE);
-   	    outtextxy(x ,y, "B: block cell, U: unblock cell, H: h-values, K: key-values, S: new START, X: new GOAL, P: cell positions, C: local connections, M: all connections ");
+   	    outtextxy(x ,y, "B: block cell, U: unblock cell, H: h-values, K: key-values, S: new START, X: new GOAL, P: cell positions, C: local connections, M: all connections, R: State Expansions ");
 	    
 	    y = y + textheight("_");
 	    setcolor(WHITE);
@@ -508,6 +508,57 @@ void GridWorld::displayMapConnections()
 								//cout << "cost[" << m << "] = " << originVertex->linkCost[m] << endl; //<< "blocked cell" << endl; 
 								
 							}
+							
+						}
+				   } 
+					
+					
+				} //for next Cols
+			} //for next Rows
+		setlinestyle(SOLID_LINE, 1, 1);
+	}
+   catch (std::ifstream::failure e) {
+    std::cerr << "Exception dispaying Map\n";
+   }
+  
+ 
+  
+}
+
+//output: display entire map connections
+void GridWorld::displayShortestPath() 
+{
+	int cellX, cellY;
+	vertex* originVertex;
+	vertex* neighbour;
+	int neighbourY, neighbourX;
+		
+	try{
+		//---------------------------------------
+		 displayHeader();
+		//---------------------------------------		
+		
+			for(int j =0; j < GRIDWORLD_ROWS; j++) //row
+			{
+				
+				for(int i =0;i < GRIDWORLD_COLS; i++) //col
+				{
+		
+		         //If the cell is not a BLOCKED CELL
+		         if(map[j][i].type != '1'){
+		
+						originVertex = &map[j][i];
+						for(int m=0; m < DIRECTIONS; m++){
+							neighbour = map[j][i].move[m];
+							if(neighbour != NULL && neighbour->type != '1'){
+								//for debugging only
+								//cout << "cost[" << m << "] = " << originVertex->linkCost[m] << endl; 
+								
+								setcolor(RED);
+								setlinestyle(WIDE_DOT_FILL, 3, 3);
+								// setlinestyle(SOLID_LINE, 1, 3);
+							    line(neighbour->centre.x, neighbour->centre.y, originVertex->centre.x, originVertex->centre.y);	
+							}  
 							
 						}
 				   } 

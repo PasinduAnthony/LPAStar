@@ -34,6 +34,7 @@ public:
 	void displayMap();
 	void displayMapWithDetails();
 	void displayMapWithPositionDetails();
+	void displayShortestPath();
 	void displayMapWithKeyDetails(); 
 	void displayMapWithSelectedDetails(bool display_g, bool display_rhs, bool display_h, bool display_key); 
 	
@@ -185,6 +186,7 @@ public:
 	//----------------------------------------------------------------------------
 	// friend functions
 	friend void copyMazeToDisplayMap(GridWorld &gWorld, LpaStar* lpa);
+	friend void copyMazeToDisplayMapShortestPath(GridWorld &gWorld, LpaStar* lpa);
 	friend void copyDisplayMapToMaze(GridWorld &gWorld, LpaStar* lpa);
 	
 private:

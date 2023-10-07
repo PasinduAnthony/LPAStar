@@ -200,7 +200,6 @@ struct LpaStarCell
 	 double h;
     double key[2];
 	
-	
 	 //~ int g;
     //~ int rhs;
     //~ int key[2];
@@ -216,56 +215,48 @@ struct LpaStarCell
     int generated;
     int heapindex;
 
-
-	// bool operator<(const LpaStarCell* other) const {
-    //     bool result = false;
-	// 	if(key[0] < other->key[0]){
-	// 		result = true;
-	// 	}else if(key[0] == other->key[0]){
-	// 		if(key[1] < other->key[1]){
-	// 			result = true;
-	// 		}
-	// 	}
-    //     return result; // Change the comparison as needed
-    // }
 };
 
-// struct LpaStarCellComparator{
-// 	bool operator()(const LpaStarCell* a, const LpaStarCell* b) const {
+// comparator for priority queue 
+struct LpaStarCellComparator{
+	bool operator()(const LpaStarCell* a, const LpaStarCell* b) const {
 		
-// 		bool result = false;
-// 		if(a->key[0] < b->key[0]){
-// 			result = true;
-// 		}else if(a->key[0] == b->key[0]){
-// 			if(a->key[1] < b->key[1]){
-// 				result = true;
-// 			}
-// 		}
-//         return result; // Min-heap: Compare based on 'x' in ascending order
-//     }
-// };
-
-// Define a custom comparison functor
-// struct LpaStarCellComparator {
-//     bool operator()(const LpaStarCell* a, const LpaStarCell* b) const {
-//         if (a->key[0] == b->key[0]) {
-//             return a->key[1] > b->key[1]; // Secondary comparison on key[1]
-//         }
-//         return a->key[0] > b->key[0]; // Primary comparison on key[0]
-//     }
-// };
-
-struct LpaStarCellComparator {
-    bool operator()(const LpaStarCell* cell1, const LpaStarCell* cell2) const {
-        if (cell1->key[0] != cell2->key[0]) {
-            // If key[0] values are not equal, order by key[0] ascending
-            return cell1->key[0] < cell2->key[0];
-        } else {
-            // If key[0] values are equal, order by key[1] ascending
-            return cell1->key[1] < cell2->key[1];
-        }
+		bool result = false;
+		if(a->key[0] < b->key[0]){
+			result = true;
+		}else if(a->key[0] == b->key[0]){
+			if(a->key[1] < b->key[1]){
+				result = true;
+			}
+		}
+        return result; // Min-heap: Compare based on 'x' in ascending order
     }
 };
+
+
+// comparator for shortest path
+struct LpaStarCellComparatorShortestPath{
+	bool operator()(const LpaStarCell* e1, const LpaStarCell* e2) const {
+		bool val = false;
+		if (e1->key[0] == e2->key[0]) {
+			if (e1->key[1] == e2->key[1]) {
+				if (e1->g == e2->g) {
+					if (e1->rhs == e2->rhs) {
+						val = e1->rhs < e2->rhs; // Sort by h in ascending order if g and rhs are equal
+					}
+					// return e1->rhs < e2->rhs; // Sort by rhs in ascending order if g is equal
+				}
+				// return e1->g < e2->g; // Sort by g in ascending order
+			}else{
+				val = e1->key[1] > e2->key[1]; // Sort by key[1] in descending order
+			}        
+		}else{
+			val = e1->key[0] > e2->key[0]; // Sort by key[0] in descending order
+		}
+		return val;    
+	}
+};
+
 
 extern bool SHOW_MAP_DETAILS;
 

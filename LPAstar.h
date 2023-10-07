@@ -22,13 +22,12 @@ public:
     void computeShortestPath();
     void updateVertex(LpaStarCell* cell);
 	double minValue(double g_, double rhs_);
-    //double maxValue(double v1, double v2);
     int maxValue(int v1, int v2);
 	void calcKey(int x, int y);
     void calcKey(LpaStarCell *cell);
-    //void calc_H(int x, int y);
     double calc_H(int x, int y);
     double getCost(LpaStarCell* succ, LpaStarCell* u);
+    void updateNeighbours(int x, int y, char type);
     bool inHeap(LpaStarCell* u);
     void updateHValues();
     void updateAllKeyValues();
@@ -62,6 +61,7 @@ public:
     }
 
     friend void copyMazeToDisplayMap(GridWorld &gWorld, LpaStar* lpa);
+    friend void copyMazeToDisplayMapShortestPath(GridWorld &gWorld, LpaStar* lpa);
     friend void copyDisplayMapToMaze(GridWorld &gWorld, LpaStar* lpa);
 
     int stateExpansions;    
@@ -79,12 +79,17 @@ private:
 	
     vector<vector<LpaStarCell> > maze;   
     LpaStarCell l;
-    vector<LpaStarCell* > U;
-    // priority_queue<LpaStarCell* > U; //Priority Queue
+    vector<LpaStarCell* > U;//Priority Queue
     vector<LpaStarCell* > PopOut; //Priority Queue
     LpaStarCell* start;
     LpaStarCell* goal;
+    LpaStarCell* temp = nullptr;
 
+    int tempStartY;
+    int tempStartX;
+
+    int vertextAccess = 0;
+    int maxQLenght = 0;
     int rows;
     int cols;
     int current_top_coord;

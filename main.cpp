@@ -91,6 +91,7 @@ void copyMazeToDisplayMap(GridWorld &gWorld, LpaStar* lpa){
 			
 		}
 	}
+	// lpa_star->PopOut;
 	gWorld.map[lpa->start->y][lpa->start->x].h = lpa->start->h;
 	gWorld.map[lpa->start->y][lpa->start->x].g = lpa->start->g;
 	gWorld.map[lpa->start->y][lpa->start->x].rhs = lpa->start->rhs;
@@ -108,6 +109,23 @@ void copyMazeToDisplayMap(GridWorld &gWorld, LpaStar* lpa){
 	gWorld.map[lpa->goal->y][lpa->goal->x].col = lpa->goal->x;
 	for(int k=0; k < 2; k++){
 			  gWorld.map[lpa->goal->y][lpa->goal->x].key[k] = lpa->goal->key[k];			  
+	}
+	
+}
+
+void copyMazeToDisplayMapShortestPath(GridWorld &gWorld, LpaStar* lpa){
+	for(int i=0; i < gWorld.getGridWorldRows(); i++){
+	   for(int j=0; j < gWorld.getGridWorldCols(); j++){
+			gWorld.map[i][j].type = '1';
+		}
+	}
+	// lpa_star->PopOut.size();
+	double tempRhs = lpa_star->PopOut.front()->rhs;
+	for(int x=0; x < lpa_star->PopOut.size(); x++){
+		// if((tempRhs > lpa_star->PopOut[x]->rhs) && (tempRhs != lpa_star->PopOut[x]->rhs)){
+			gWorld.map[lpa_star->PopOut[x]->y][lpa_star->PopOut[x]->x].type = lpa_star->PopOut[x]->type;
+			tempRhs = lpa_star->PopOut[x]->rhs;
+		// }
 	}
 	
 }
@@ -268,6 +286,10 @@ int getKey(){
 		  return 16;
     }
 
+	if(GetAsyncKeyState(0x52) < 0) { //R-key (entire map connections)
+		  return 17;
+    }
+
     if(GetAsyncKeyState(VK_CONTROL) < 0) { //Ctrl key
    	 CONTROL_KEY_FLAG=true;
    	 
@@ -355,8 +377,11 @@ int getKey(){
 	lpa_star->initialise(start.col, start.row, goal.col, goal.row);
 	
 	copyDisplayMapToMaze(grid_world, lpa_star);
-
+	
 	lpa_star->computeShortestPath();
+
+	copyMazeToDisplayMap(grid_world, lpa_star);	
+
 	//----------------------------------------------------------------
 		
 	worldBoundary = grid_world.getWorldBoundary();
@@ -412,9 +437,11 @@ int getKey(){
                      		if( !(((rowSelected-1) == g.row) && ((colSelected-1) == g.col))){
 										grid_world.setMapTypeValue(rowSelected-1, colSelected-1, '1');
 										grid_world.initialiseMapConnections(); 
-										
+										lpa_star->updateNeighbours(colSelected-1,rowSelected-1, '1');
 										rowSelected=-1;
 										colSelected=-1;
+
+										
 								   }
 								} 
 							} 
@@ -445,6 +472,7 @@ int getKey(){
 										
 										rowSelected=-1;
 										colSelected=-1;
+										
 								   }
 								} 
 							} 
@@ -590,7 +618,7 @@ int getKey(){
 						
 					
 					case 16:
-						 
+					copyMazeToDisplayMap(grid_world, lpa_star);
 						   if(grid_world.isGridMapInitialised()){
 						   	cout << "\nletter m, pressed." << endl;
 						   	page = !page; //new - napoleon; this fixed it!
@@ -617,6 +645,34 @@ int getKey(){
 							//--------------------------------------------
 	
 						   break;		
+					case 17:
+							copyMazeToDisplayMapShortestPath(grid_world, lpa_star);
+						   if(grid_world.isGridMapInitialised()){
+						   	cout << "\nletter m, pressed." << endl;
+						   	page = !page; //new - napoleon; this fixed it!
+						   	setactivepage(page);
+
+						   	if(SHOW_MAP_DETAILS) {
+								  grid_world.displayShortestPath();
+							   } else {
+							      grid_world.displayMap();
+							   }
+								grid_world.displayShortestPath();
+								setvisualpage(page);
+								
+                        while(GetAsyncKeyState(0x52) != 0){
+                        	//wait for letter r to be released
+                        }
+								
+							} else {
+							 	cout << "map has not been initialised yet." << endl;
+								break;
+							}
+							
+				
+							//--------------------------------------------
+	
+						   break;	
 
 					case 6: //set cell as new START vertex 
 					   {
